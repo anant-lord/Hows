@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pallvi Personality AI 💫</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #ff4d6d;
+            --secondary: #48cae4;
+            --accent: #ff9e00;
+            --dark: #0a0a0a;
+            --light: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark), #1a1a2e, #16213e);
+            color: var(--light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 4rem;
+            background: linear-gradient(45deg, var(--primary), var(--accent), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 30px rgba(255, 77, 109, 0.5);
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        /* AI Interface */
+        .ai-interface {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .question-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .question-box {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .option-btn {
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            color: var(--light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .option-btn:hover {
+            background: rgba(255, 77, 109, 0.2);
+            transform: translateX(10px);
+        }
+
+        .option-btn.selected {
+            background: rgba(255, 77, 109, 0.3);
+            border-color: var(--primary);
+        }
+
+        /* Results Section */
+        .results-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .result-card {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+
+        .result-card.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .compatibility-meter {
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .percentage {
+            font-size: 5rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .chart-container {
+            height: 200px;
+            margin: 2rem 0;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin: 2rem 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        /* Secret Message */
+        .secret-message {
+            background: rgba(255, 77, 109, 0.1);
+            border: 2px dashed var(--primary);
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .secret-message.active {
+            display: block;
+        }
+
+        /* Floating Elements */
+        .floating-hearts {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .heart {
+            position: absolute;
+            font-size: 2rem;
+            opacity: 0;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .ai-interface {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-hearts" id="heartsContainer"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>Pallvi Personality AI</h1>
+            <div class="subtitle">Discover Your Unique Love Profile with Anubhav 💖</div>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div style="text-align: center; margin-top: 0.5rem;" id="progressText">Question 1 of 5</div>
+        </div>
+
+        <div class="ai-interface">
+            <!-- Questions Section -->
+            <div class="question-section">
+                <div class="question-box">
+                    <div class="question-text" id="currentQuestion">What's your idea of a perfect date with Anubhav?</div>
+                    <div class="options" id="optionsContainer">
+                        <!-- Options will be inserted by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-section">
+                <div class="result-card active" id="welcomeCard">
+                    <h3>Welcome, Pallvi! 🌸</h3>
+                    <p>Answer 5 simple questions to discover your unique love personality and compatibility with Anubhav!</p>
+                </div>
+
+                <div class="result-card" id="personalityCard">
+                    <h3>Your Love Personality 🎭</h3>
+                    <div class="chart-container">
+                        <canvas id="personalityChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="result-card" id="compatibilityCard">
+                    <h3>Compatibility Score 💞</h3>
+                    <div class="compatibility-meter">
+                        <div class="percentage" id="compatibilityScore">98%</div>
+                        <p>You and Anubhav are a perfect match!</p>
+                    </div>
+                </div>
+
+                <div class="result-card" id="insightsCard">
+                    <h3>Relationship Insights 🔮</h3>
+                    <p id="insightsText">Based on your answers, here's what makes your relationship special...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="secret-message" id="secretMessage">
+            <h3>💌 Secret Message from Anubhav</h3>
+            <p id="secretMessageText">You're the best thing that ever happened to me!</p>
+        </div>
+    </div>
+
+    <script>
+        // Questions Data
+        const questions = [
+            {
+                question: "What's your idea of a perfect date with Anubhav?",
+                options: [
+                    "Romantic dinner with deep conversations",
+                    "Adventure trip or trying something new",
+                    "Cozy movie night at home",
+                    "Party with friends and dancing"
+                ],
+                category: "Romance Style"
+            },
+            {
+                question: "What do you love most about Anubhav?",
+                options: [
+                    "His sense of humor and how he makes me laugh",
+                    "His intelligence and ambition",
+                    "His caring and protective nature", 
+                    "His confidence and leadership"
+                ],
+                category: "Appreciation"
+            },
+            {
+                question: "How do you handle disagreements with Anubhav?",
+                options: [
+                    "Talk it out calmly and logically",
+                    "Need some space then discuss",
+                    "Use humor to lighten the mood",
+                    "Express emotions openly and passionately"
+                ],
+                category: "Conflict Resolution"
+            },
+            {
+                question: "What's your favorite memory with Anubhav?",
+                options: [
+                    "Our first date - everything was perfect",
+                    "That time we tried something adventurous together",
+                    "Simple moments of comfort and silence",
+                    "When we danced like nobody's watching"
+                ],
+                category: "Memories"
+            },
+            {
+                question: "What does your future with Anubhav look like?",
+                options: [
+                    "Building a stable, peaceful life together",
+                    "Full of adventures and travels",
+                    "Growing together personally and professionally",
+                    "Lots of social gatherings and family events"
+                ],
+                category: "Future Vision"
+            }
+        ];
+
+        // User responses and tracking
+        let currentQuestion = 0;
+        let userResponses = [];
+        let personalityScore = {
+            romantic: 0,
+            adventurous: 0,
+            practical: 0,
+            emotional: 0
+        };
+
+        // Initialize the quiz
+        function initQuiz() {
+            showQuestion(0);
+            createFloatingHearts();
+        }
+
+        // Display current question
+        function showQuestion(index) {
+            const question = questions[index];
+            document.getElementById('currentQuestion').textContent = question.question;
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = option;
+                btn.onclick = () => selectOption(index, i);
+                optionsContainer.appendChild(btn);
+            });
+            
+            updateProgress();
+        }
+
+        // Handle option selection
+        function selectOption(questionIndex, optionIndex) {
+            userResponses[questionIndex] = optionIndex;
+            updatePersonalityScore(questionIndex, optionIndex);
+            
+            // Visual feedback
+            const options = document.querySelectorAll('.option-btn');
+            options.forEach(btn => btn.classList.remove('selected'));
+            options[optionIndex].classList.add('selected');
+            
+            // Move to next question or show results
+            setTimeout(() => {
+                if (questionIndex < questions.length - 1) {
+                    currentQuestion++;
+                    showQuestion(currentQuestion);
+                } else {
+                    showResults();
+                }
+            }, 1000);
+        }
+
+        // Update personality score based on answers
+        function updatePersonalityScore(questionIndex, optionIndex) {
+            // This is a simplified scoring system
+            const scores = [
+                [2, 1, 0, 1], // Romantic, Adventurous, Practical, Emotional
+                [1, 2, 1, 0],
+                [0, 1, 2, 1], 
+                [2, 1, 0, 1],
+                [1, 2, 1, 0]
+            ];
+            
+            if (scores[questionIndex]) {
+                personalityScore.romantic += scores[questionIndex][0];
+                personalityScore.adventurous += scores[questionIndex][1];
+                personalityScore.practical += scores[questionIndex][2];
+                personalityScore.emotional += scores[questionIndex][3];
+            }
+        }
+
+        // Update progress bar
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressText').textContent = 
+                `Question ${currentQuestion + 1} of ${questions.length}`;
+        }
+
+        // Show final results
+        function showResults() {
+            // Calculate final scores
+            const total = Object.values(personalityScore).reduce((a, b) => a + b, 0);
+            const romanticPercent = (personalityScore.romantic / total) * 100;
+            const adventurousPercent = (personalityScore.adventurous / total) * 100;
+            const practicalPercent = (personalityScore.practical / total) * 100;
+            const emotionalPercent = (personalityScore.emotional / total) * 100;
+            
+            // Update charts
+            updatePersonalityChart(romanticPercent, adventurousPercent, practicalPercent, emotionalPercent);
+            
+            // Calculate compatibility (always high for romance 😉)
+            const compatibility = 85 + Math.floor(Math.random() * 15);
+            document.getElementById('compatibilityScore').textContent = compatibility + '%';
+            
+            // Generate insights
+            generateInsights(romanticPercent, adventurousPercent);
+            
+            // Show secret message
+            setTimeout(() => {
+                document.getElementById('secretMessage').classList.add('active');
+            }, 3000);
+            
+            // Show all result cards
+            document.getElementById('welcomeCard').classList.remove('active');
+            document.getElementById('personalityCard').classList.add('active');
+            document.getElementById('compatibilityCard').classList.add('active');
+            document.getElementById('insightsCard').classList.add('active');
+        }
+
+        // Update personality chart
+        function updatePersonalityChart(romantic, adventurous, practical, emotional) {
+            const ctx = document.getElementById('personalityChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Romantic', 'Adventurous', 'Practical', 'Emotional'],
+                    datasets: [{
+                        data: [romantic, adventurous, practical, emotional],
+                        backgroundColor: 'rgba(255, 77, 109, 0.2)',
+                        borderColor: '#ff4d6d',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#ff4d6d'
+                    }]
+                },
+                options: {
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // Generate personalized insights
+        function generateInsights(romantic, adventurous) {
+            let insights = "";
+            
+            if (romantic > 70) {
+                insights = "You're a true romantic! Your relationship with Anubhav is built on deep emotional connection and meaningful moments.";
+            } else if (adventurous > 70) {
+                insights = "You're an adventurer! You and Anubhav thrive on excitement and trying new experiences together.";
+            } else {
+                insights = "You have a balanced approach to love! Your relationship with Anubhav combines stability with spontaneous moments of joy.";
+            }
+            
+            insights += " Anubhav loves how you complement his personality and make every moment special.";
+            
+            document.getElementById('insightsText').textContent = insights;
+        }
+
+        // Create floating hearts animation
+        function createFloatingHearts() {
+            const hearts = ['💖', '💕', '💗', '💓', '💘'];
+            const container = document.getElementById('heartsContainer');
+            
+            function createHeart() {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.innerHTML = hearts[Math.floor(Math.random() * hearts.length)];
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = (Math.random() * 4 + 3) + 's';
+                heart.style.fontSize = (Math.random() * 20 + 15) + 'px';
+                container.appendChild(heart);
+                
+                setTimeout(() => heart.remove(), 7000);
+            }
+            
+            setInterval(createHeart, 300);
+            
+            // Initial hearts
+            for(let i = 0; i < 10; i++) {
+                setTimeout(createHeart, i * 200);
+            }
+        }
+
+        // Initialize when page loads
+        window.onload = initQuiz;
+    </script>
+</body>
+  </html>
